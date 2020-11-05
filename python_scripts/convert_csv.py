@@ -73,44 +73,6 @@ def excel2csv(infile, isotopologue_correction=False, verbose=False):
         df_sum_iso.to_csv(out_file_summ)
 
 
-def split_dataset_nad_atp(file_list, folder_base=None):
-    """Splits input excel dataset into NAD and ATP dataset
-
-    Splits based on column number and writes output back into excel files
-    Column numbers are set to default values in function body
-    :param file_list: list of str
-       List of filenames
-    :param folder_base: str (default: None)
-        Folder path, will be added to all input files
-    """
-    cols_atp = [0, 1, 2, 3, 4, 11, 12]
-    cols_nad = list(range(11))
-
-    if isinstance(file_list, str):
-        raise TypeError("file_list should be list of str")
-
-    for infile in file_list:
-        infile_base = os.path.basename(os.path.splitext(infile)[0])
-        outfile_atp = f"{infile_base}_ATP.xlsx"
-        outfile_nad = f"{infile_base}_NAD.xlsx"
-        if folder_base:
-            infile = os.path.join(folder_base, infile)
-            outfile_atp = os.path.join(folder_base, outfile_atp)
-            outfile_nad = os.path.join(folder_base, outfile_nad)
-        list_df = pd.read_excel(infile, sheet_name=None, header=None)
-        with pd.ExcelWriter(outfile_atp) as writer_atp:
-            with pd.ExcelWriter(outfile_nad) as writer_nad:
-                for name, df in list_df.items():
-                    df_atp = df.iloc[:, cols_atp]
-                    df_nad = df.iloc[:, cols_nad]
-                    df_atp.to_excel(
-                        writer_atp, sheet_name=name, index=False, header=None
-                    )
-                    df_nad.to_excel(
-                        writer_nad, sheet_name=name, index=False, header=None
-                    )
-
-
 def analyse_rawfiles(
     input_data,
     nad_conc=None,
@@ -307,14 +269,9 @@ def analyse_metabolites(
 if __name__ == "__main__":
     folder_base = os.path.join("..", "data")
     # Split mixed datasets into NAD and ATP ones
-    infiles_mixed = ["labelling_experiments_BKA.xlsx"]
-    split_dataset_nad_atp(infiles_mixed, folder_base=folder_base)
 
     # File conversion to csv and iso corr
     infiles = [
-        "labelling_experiments_3AB_washout_stable_cell_lines.xlsx",
-        "labelling_experiments_AtNDT2.xlsx",
-        "labelling_experiments_BKA_NAD.xlsx",
         "labelling_experiments_cell_lines_wcl_mito_separation_techrepl1.xlsx",
         "labelling_experiments_cell_lines_wcl_mito_separation_techrepl2.xlsx",
         "labelling_experiments_cell_lines.xlsx",
